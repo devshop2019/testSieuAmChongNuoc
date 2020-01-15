@@ -6,13 +6,15 @@
 # Datatypes (KEYWORD1)
 #######################################
 
-Hshop_Waterproof_Ultrasonic				KEYWORD1
+Hshop_Ultrasonic				KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
 ping_cm							KEYWORD2
-
+getMode							KEYWORD2
+getR27							KEYWORD2
+Hshop_Waterproof_Ultrasonic		KEYWORD2
 #######################################
 # Constants (LITERAL1)
 #######################################

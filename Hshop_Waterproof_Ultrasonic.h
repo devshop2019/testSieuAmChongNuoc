@@ -16,6 +16,13 @@ class Hshop_Ultrasonic{
     int ping_cm();
     void begin();
     int readMode_1();
+	String getMode(){return String(mode);}
+	String getR27(){
+		if(mode == 1) return "Empty";
+		else if(mode == 2) return "47K";
+		else if(mode == 3) return "120K";
+	}
+		
   private:
     unsigned long lastTime;
     uint8_t trigRX;
