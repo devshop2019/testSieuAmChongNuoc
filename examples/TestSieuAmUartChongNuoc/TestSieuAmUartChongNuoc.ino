@@ -81,7 +81,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   if(readSieuAm_available()){
-    delay(100);
+    delay(120);
   }
 }
 
@@ -99,4 +99,3 @@ bool readSieuAm_available(){
   }
   return false;
 }
-

@@ -92,7 +92,36 @@ class Hshop_Ultrasonic{
     int readIndex = 0;              // the index of the current reading
     int total = 0;                  // the running total
     
-    SoftwareSerial * sieuam;
+    SoftwareSerial * sieuam = 0;
+    
+    bool readSieuAm_available3(){
+      bool temStatus = false;
+      if(!sieuam)this->begin();
+      while(sieuam->available()){
+        readings[3] = readings[2];
+        readings[2] = readings[1];
+        readings[1] = readings[0];
+        // read from the serial:
+        readings[0] = sieuam->read();
+        
+        db_sa_t(readings[3], HEX);
+        db_sa_t(readings[2], HEX);
+        db_sa_t(readings[1], HEX);
+        db_sa_t(readings[0], HEX);
+        
+        if(readings[3] == 0xff){
+          int sum = readings[3] + readings[1] + readings[2];
+          if((uint8_t)sum == readings[0]){
+            value_mm = (readings[2] << 8) + readings[1];
+            lastvalue_mm = value_mm;
+            
+            temStatus = true;
+          }
+        }
+       }
+        
+      return temStatus;
+    }
     
     bool readSieuAm_available2(){
       if(!sieuam)this->begin();
@@ -160,20 +189,21 @@ Hshop_Ultrasonic::Hshop_Ultrasonic(uint8_t _Trig_RX_, uint8_t _Echo_TX_, uint8_t
 }
 
 void Hshop_Ultrasonic::begin(){
-  if((mode == 2) || (mode == 3))
+  if((mode == 2) || (mode == 3)){
+    db_sa("begin ultrasonic");
     if(!sieuam){
-      delete sieuam;
       sieuam = new SoftwareSerial(trigRX, echoTX);
       sieuam->begin(9600);
     }
+  }
 }
 
 int Hshop_Ultrasonic::ping_cm(){
   switch(mode){
     case 3:
-    
+      if(sieuam)sieuam->write(0x55);
     case 2:
-      readSieuAm_available();
+      readSieuAm_available3();
       return lastvalue_mm/10;
       break;
     default:
@@ -189,16 +219,14 @@ uint8_t sieuAm_Value = 0;
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  sieuAm.begin();
+//  sieuAm.begin();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-//  if(readSieuAm_available()){
-//    delay(100);
-//  }
+
   Serial.println(sieuAm.ping_cm());
-  delay(50);
+  delay(1000);
 }
 
 //bool readSieuAm_available(){
