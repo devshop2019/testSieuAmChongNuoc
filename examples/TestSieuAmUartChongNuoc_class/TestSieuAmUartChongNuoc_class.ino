@@ -87,7 +87,45 @@ class Hshop_Ultrasonic{
     int value_mm;
     int lastvalue_mm;
     
+    const uint8_t numReadings = 4;
+    int readings[4];      // the readings from the Serial
+    int readIndex = 0;              // the index of the current reading
+    int total = 0;                  // the running total
+    
     SoftwareSerial * sieuam;
+    
+    bool readSieuAm_available2(){
+      if(!sieuam)this->begin();
+      while(sieuam->available()){
+        total = total - readings[readIndex];
+        // read from the serial:
+        readings[readIndex] = sieuam->read();
+        // add the reading to the total:
+        total = total + readings[readIndex];
+        // advance to the next position in the array:
+        readIndex = readIndex + 1;
+      
+        // if we're at the end of the array...
+        if (readIndex >= numReadings) {
+          readIndex = 0;
+        }
+        
+        db_sa_t(readings[3], HEX);
+        db_sa_t(readings[2], HEX);
+        db_sa_t(readings[1], HEX);
+        db_sa_t(readings[0], HEX);
+//          db_sa(value_mm);
+        if(readings[0] != 0xff) return false;
+        int sum = readings[3] + readings[1] + readings[2];
+        if((uint8_t)sum == readings[0]){
+          value_mm = (readings[2] << 8) + readings[1];
+          lastvalue_mm = value_mm;
+          
+          return true;
+        }
+      }
+      return false;
+    }
     
     bool readSieuAm_available(){
       uint8_t temBuffer[4];
@@ -110,6 +148,7 @@ class Hshop_Ultrasonic{
       }
       return false;
     }
+    
     
 };
 
@@ -176,4 +215,3 @@ void loop() {
 //  }
 //  return false;
 //}
-
